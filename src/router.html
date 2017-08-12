@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>helloworld</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <script src="lib/vue.js"></script>
+    <script src="vue-router.js"></script>
+  </head>
+  <body>
+  <!--Vue.js + vue-router 创建单页应用-->
+  <div id="app">
+    <!-- 使用 router-link 组件来导航. -->
+    <!-- 通过传入 `to` 属性指定链接. -->
+    <!-- <router-link> 默认会被渲染成一个 `<a>` 标签 -->
+    <h1>hello app</h1>
+    <p>
+      <router-link to="/index">进入index页面</router-link>
+      <router-link to="/slot">进入slot页面</router-link>
+    </p>
+    <h1>嵌套路由</h1>
+    <!--嵌套路由-->
+      <router-link to="/user/one">进入user</router-link>
+      <router-link to="/user/one/profile">进入profile</router-link>
+      <router-link to="/user/one/post">进入posts</router-link>
+     <!-- 路由出口 -->
+    <!-- 路由匹配到的组件将渲染在这里 -->
+    <router-view></router-view>
+  </div>
+    <script>
+      // 0. 如果使用模块化机制编程，導入Vue和VueRouter，要调用 Vue.use(VueRouter)
+
+      // 1. 定义（路由）组件。
+      // 可以从其他文件 import 进来
+       const Index={template:'<p>这是index页面</p>'}
+       const Slot={template:'<p>这是slot页面</p>'}
+
+       const user={
+        template:`
+          <div class="user">
+            <h2>User {{ $route.params.id }}</h2>
+            <router-view></router-view>
+          </div>
+        `
+       }
+       const userHome={template:'<p>Home</p>'}
+       const userProfile={template:'<p>Profile</p>'}
+       const userPost={template:'<p>post</p>'}
+       // 2. 定义路由
+      // 每个路由应该映射一个组件。 其中"component" 可以是
+      // 通过 Vue.extend() 创建的组件构造器，
+      // 或者，只是一个组件配置对象。
+      // 我们晚点再讨论嵌套路由。
+       const routes=[
+          {path:'/index',component:Index},
+          {path:'/slot',component:Slot},
+
+          {path:'/user/:id',component:user,children:[
+            {path:'',component:userHome},
+            {path:'profile',component:userProfile},
+            //{path:'profile',name="profile" component:userProfile},
+            /*{path:'post',component:userPost}*/
+            //重定向
+            {path:'post',redirect:'profile'}
+            //{path:'post',redirect:{name:'profile'}}
+
+          ]}
+       ]
+      // 3. 创建 router 实例，然后传 `routes` 配置
+      // 你还可以传别的配置参数, 不过先这么简单着吧。
+       const router=new VueRouter({
+        routes
+       })
+      // 4. 创建和挂载根实例。
+      // 记得要通过 router 配置参数注入路由，
+      // 从而让整个应用都有路由功能
+       const app=new Vue({
+        router
+       }).$mount('#app')
+    </script>
+  </body>
+</html>

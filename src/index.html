@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>helloworld</title>
+    <script src="lib/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+		<my-app></my-app>
+    </div>
+    <div id="component">
+		<my-app2></my-app2>
+    </div>
+    <div id="myParent">
+		<parent-component></parent-component>
+    </div>
+
+    <div id="brief">
+		<my-component2></my-component2>
+    </div>
+     <div id="brief2">
+		<my-component3></my-component3>
+    </div>
+
+    <div id="component1">
+		<component></component>
+    </div>
+    <script type="text-x-template" id="my-component4">
+    	<h2>这是使用script标签</h2>
+    </script>
+
+    <div id="component2">
+		<component1></component1>
+    </div>
+    <template id="my-component5">
+		<h1>这是使用template标签</h1>
+    </template>
+
+    <div id="data1">
+		<my-data></my-data>
+		<my-data></my-data>
+		<my-data></my-data>
+    </div>
+
+    <template id="mytemplate">
+		<table>
+			<tr>
+				<td>姓名：{{myName}}</td>
+				<td>年龄：{{myAge}}</td>
+			</tr>
+		</table>
+    </template>
+    <div id="myprops">
+		<myprop v-bind:my-name="name" v-bind:my-age="age"></myprop>
+    </div>
+    <div id="myprops1">
+    	<child2 message="hello"></child2>
+    </div>
+
+    <div id="button-count">
+		<p>{{total}}</p>
+		<my-button v-on:increment="incrementatal"></my-button>
+		<my-button v-on:increment="incrementatal"></my-button>
+    </div>
+
+    <!--货币输入的自定义组件-->
+    <div id="mony">
+		<current-input v-model="price"></current-input>
+    </div>
+    <!--非父子组件间进行通信-->
+	<div id="component3">
+		<foo></foo>
+		<bar></bar>
+	</div>
+    <!-- built files will be auto injected -->
+    <script>
+    //创建一个组件构造器
+    var myApp=Vue.extend({
+    	template:'<h2>这是一个组件</h2>'
+    })
+    //全局注册组件，组件的标签名为my-app
+    Vue.component('my-app',myApp)
+    new Vue({
+    	el:'#app'
+    })
+
+    //局部注册组件
+    var myApp2=Vue.extend({
+        	template:'<h3>这是局部注册组件</h3>'
+        })
+    new Vue({
+    	el:'#component',
+    	components:{
+    		'my-app2':myApp2
+    	}
+    })
+
+    //父组件与子组件
+    var Child=Vue.extend({
+    	template:'<span>这是一个子组件</span>'
+    })
+    var Parent=Vue.extend({
+    	template:'<p>这是父组件<child-component></child-component></p>',
+    	components:{
+    		'child-component':Child
+    	}
+    })
+
+    Vue.component('parent-component',Parent)
+    new Vue({
+    	el:'#myParent'
+    })
+
+    //组件注册语法糖，将上述步骤简单化
+    Vue.component('my-component2',{
+    	template:'<h1>这是简单化的全局注册</h1>'
+    })
+     var vm=new Vue({
+     	el:'#brief'
+     })  
+
+     //简单化的局部注册
+     var vm1=new Vue({
+     	el:'#brief2',
+     	components:{
+     		'my-component3':{
+     			template:'<h2>这是简单化的局部注册</h2>'
+     		}
+     	}
+     })
+
+     //使用script标签
+     Vue.component('component',{
+     	template:'#my-component4'
+     })
+     new Vue({
+     	el:'#component1'
+     })
+
+     //使用template标签
+     	Vue.component('component1',{
+     		template:'#my-component5'
+     	})
+     new Vue({
+     	el:'#component2'
+     })
+
+     //data
+     var data={count:0}
+     Vue.component('my-data',{
+     	template:'<button v-on:click="count+=1">{{count}}</button>',
+     	data:function(){
+     		//return data  //如果这么写，三个组件会同时加，共用data
+     		return {
+     			count:0  //此时三个组件就不共用了，这是为每个组件返回一个全新的data
+     		}
+     	}
+     })
+     new Vue({
+     	el:'#data1'
+     })
+     //使用prop传递数据
+     Vue.component('child2',{
+     	props:['message'],
+     	template:'<h4>这是一个数据{{message}}</h4>'
+     })
+     new Vue({
+     	el:'#myprops1'
+     })
+     //使用prop动态绑定数据
+     new Vue({
+     	el:'#myprops',
+     	data:{
+     		name:'zz',
+     		age:'18'
+     	},
+     	components:{
+     		'myprop':{
+     	     	template:'#mytemplate',
+     	     	props:['myName','myAge']
+     	 },
+     }
+ })
+     
+     //使用v-on绑定自定义事件,子组件传递给父组件
+     Vue.component('my-button',{
+     	template:'<button v-on:click="increment">{{count}}</button>',
+     	data:function(){
+     		return {
+     			count:0
+     		}
+     	},
+     	methods:{
+     		increment:function(){
+     			this.count+=1
+     			this.$emit('increment')  //触发父组件的事件
+     		}
+     	}
+     })
+     new Vue({
+     	el:'#button-count',
+     	data:{
+     		total:0
+     	},
+     	methods:{
+     		incrementatal:function(){
+     			this.total+=1
+     		}
+     	}
+     })
+     //非父子组件间进行通信
+     var eventBus=new Vue({})
+     Vue.component('foo',{
+     	template:'<button v-on:click="addbar">{{count1}}</button>',
+     	data:function(){
+     		return {
+     			count1:1
+     		}
+     	},
+     	methods:{
+     		addbar:function(){
+     			eventBus.$emit('addbar')
+     		}
+     	},
+     	mounted:function(){
+     		eventBus.$on('addfoo',function(num){
+     			this.count1+=num
+     		}.bind(this))
+     	}
+     })
+     Vue.component('bar',{
+     	template:'<button v-on:click="addfoo">{{count2}}</button>',
+     	data:function(){
+     		return {
+     			count2:1
+     		}
+     	},
+     	methods:{
+     		addfoo:function(){
+     			eventBus.$emit('addfoo',2)
+     		}
+     	},
+     	mounted:function(){
+     		eventBus.$on('addbar',function(){
+     			this.count2+=1
+     		}.bind(this))
+     	}
+     })
+     new Vue({
+     	el:'#component3'
+     })
+     //货币输入的自定义控件
+     //原生input里面有oninput事件的，在表单输入时触发$event.target.value可以获取到当前输入的值传递给something。
+	//而oninput事件的回调函数里的第一个参数就是当前input的value，所以也可以通过arguments[0]获取到函数的第一个参数也就是input的value传递给something
+	
+	/*一般来讲，获取DOM元素，需document.querySelector（".input1"）获取这个dom节点，然后在获取input1的值。
+但是用ref绑定之后，我们就不需要在获取dom节点了，直接在上面的input上绑定input1，然后$refs里面调用就行。
+然后在javascript里面这样调用：this.$refs.input1  这样就可以减少获取dom节点的消耗了*/
+     Vue.component('current-input',{
+     	template:'\
+		    <span>\
+		      $\
+		      <input\
+		        ref="input1"\
+		        v-bind:value="value"\
+		        v-on:input="updateValue($event.target.value)"\
+		      >\
+		    </span>\
+		    ',
+     	props:['value'],
+     	methods:{
+     		updateValue:function(value){
+     			var formittedValue=value.trim().slice(0,value.indexOf('.')+3)
+     			if(formittedValue!==value){
+     				this.$refs.input1.value=formittedValue
+     			}
+     			this.$emit('input',Number(formittedValue))
+     		}
+     	}
+     })
+     new Vue({
+		  el: '#mony',
+		  data: {
+		    price: 0
+		  }
+		})
+    </script>
+  </body>
+</html>

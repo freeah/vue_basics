@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>helloworld</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <script src="lib/vue.js"></script>
+  </head>
+  <body>
+  <div id="app">
+    <my-component v-show="display"></my-component>
+  </div>
+  <template id="myComp">
+    <div>
+        <h2>{{message}}</h2>
+        <button v-on:click="showme">显示数据</button>
+    </div>
+  </template>
+
+  <!--使用slot-->
+  <div id="app1">
+    <my-component1>
+        <h1>hello vue.js</h1>
+        <h2>hello vue.js hahah</h2>
+    </my-component1>
+    <my-component1></my-component1>
+  </div>
+  <template id="myComp1">
+    <div class="content">
+        <h2>this is a component</h2>
+        <slot>如果没有分发内容，则显示slot中的内容</slot>
+        <p>say something...</p>
+    </div>
+  </template>
+  <!--使用slog做dialog-->
+    <template id="mydialog">
+        <div class=dialogs>
+            <div class="dialog" v-bind:class="{'active':showed}">
+            <div class="close" v-on:click="close">
+                <span>X</span>
+            </div>
+            <slot name="header"></slot>
+            <slot name="dbody"></slot>
+            <slot name="footer"></slot>
+        </div>
+        </div>
+    </template>
+    <div id="app2">
+        <my-component2 v-bind:showed="show">  <!--将父组件的show绑定给子组件showed-->
+            <header slot="header">这是对话的头部</header>
+            <div class="diabody" slot="dbody">这是对话框的中间部分内容</div>
+            <footer slot="footer"><button v-on:click="close1">关闭</button></footer>
+        </my-component2>
+        <button v-on:click="open">打开对话框</button>
+    </div>
+
+    <!--作用域插槽-->
+    <template id="child3">
+        <div>
+            <ul>
+                <slot name="child-ul" v-for="item in fruits" v-bind:text="item.name">?</slot>  <!--子组件的数据邦洞到text上-->
+            </ul>
+        </div>
+    </template>
+    <template id="father">
+        <children>
+            <template scope="props" slot="child-ul"> <!--scope接收子组件过来的数据对象-->
+                <li class="child-ul">{{props.text}}</li>
+            </template>
+        </children>
+    </template>
+    <div id="slott">
+        <father></father>
+    </div>
+
+    <!--动态组件-->
+    <div id="app3">
+        <button v-on:click="changed">点击让组件切换</button>
+        <componentt v-bind:is="currentcomp" keep-alive></componentt>
+        <!--组件切换后就会被移除，如果不需要被移除，则加上keep-alive即可-->
+    </div>
+
+    <!--动态组件，tab切换实例-->
+    <div id="tab">
+        <ul>
+            <li v-on:click="tab('tab1')">导航一</li>
+            <li v-on:click="tab('tab2')">导航二</li>
+            <li v-on:click="tab('tab3')">导航三</li>
+        </ul>
+        <div class="content">
+            <tab-content v-bind:is="currentTab"></tab-content>
+        </div>
+    </div>
+
+    <!--子组件索引-->
+    <div id="app4">
+        <incomponent ref="input3"></incomponent>
+        <button v-on:click="changev">查找到子组件，并改变值</button>
+    </div>
+    <!-- built files will be auto injected -->
+    <script>
+        new Vue({
+            el:'#app',
+            data:{
+                display:true
+            },
+            components:{
+                'my-component':{
+                    template:'#myComp',
+                    data:function(){
+                        return {
+                            message:'这是一个信息'
+                            }
+                        },
+                    methods:{
+                        showme:function(){
+                            alert(this.message)
+                        }
+                    }
+                }
+            }
+        })
+        //使用slot
+        Vue.component('my-component1',{
+            template:'#myComp1'
+        })
+        new Vue({
+            el:'#app1'
+        })
+        //使用slot做对话框
+        Vue.component('my-component2',{
+            template:'#mydialog',
+            props:['showed'],  //子组件数据showed未知，使用props绑定
+            methods:{
+                close:function(){
+                    this.showed=true
+                }
+            }
+        })
+        new Vue({
+            el:'#app2',
+            data:{
+                show:true  //父组件show已知
+            },
+            methods:{
+                open:function(){
+                    this.show=false
+                
+                },
+                close1:function(){
+                    console.log(this.show)
+                   
+                }
+            }
+        })
+        //作用域插槽
+        Vue.component('children',{
+            template:'#child3',
+            data:function(){
+                return {
+                    fruits:[
+                        {name:'苹果'},
+                        {name:'香蕉'},
+                        {name:'橙子'}
+                    ]
+                }
+            }
+        })
+        Vue.component('father',{
+            template:'#father'
+        })
+        new Vue({
+            el:'#slott'
+        })
+
+        //动态组件
+        new Vue({
+            el:'#app3',
+            data:{
+                currentcomp:'onecomp'
+            },
+            components:{
+                onecomp:{
+                    template:'<h1>这是第一个组件</h1>'
+                },
+                twocomp:{
+                    template:'<h1>这是第二个组件</h1>'
+                },
+                threecomp:{
+                    template:'<h1>这是第三个组件</h1>'
+                }
+            },
+            methods:{
+                changed:function(){
+                    var currentcomps=['onecomp','twocomp','threecomp']
+                    var index=currentcomps.indexOf(this.currentcomp)
+                    console.log(index)
+                    if(index<2){
+                        this.currentcomp=currentcomps[index+1]
+                    }
+                    if(index==2){
+                        this.currentcomp=currentcomps[0]
+                    }
+
+                }
+            }
+        })
+        //tab切换
+        new Vue({
+            el:'#tab',
+            data:{
+                currentTab:'tab1'
+            },
+            components:{
+                tab1:{
+                    template:'<p>这是导航一的内容</p>'
+                },
+                tab2:{
+                    template:'<p>导航二导航二导航二啦</p>'
+                },
+                tab3:{
+                    template:'<p>恩，我是导航三，我是导航三</p>'
+                }
+            },
+            methods:{
+                 tab:function(val){
+                    this.currentTab=val
+                 }   
+            }
+        })
+
+        //子组件索引
+        var parent=new Vue({
+            el:'#app4',
+            components:{
+                incomponent:{
+                    template:'<input type="text" ref="input2" value="1">'
+                    /*methods:{
+                        changev1:function(){
+                            console.log(this.$refs.input2)
+                            this.$refs.input2.value="2"
+                        }
+                    }*/
+                }
+            },
+            methods:{
+                changev:function(){
+                    parent.$refs.input3.$refs.input2.value=22
+                }
+            }
+        })
+    </script>
+  </body>
+</html>

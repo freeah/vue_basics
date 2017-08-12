@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>helloworld</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <script src="lib/vue.js"></script>
+    <script src="lib/lodash.js"></script>
+  </head>
+  <body>
+  <div id="app">
+	<book-reserve></book-reserve>
+  </div>
+    <template id="bookreserve">
+	    <div>
+	        <table>
+	            <thead>
+	                <tr>
+	                    <th v-on:click="sort('id')">序号</th>
+	                    <th v-on:click="sort('name')">书名</th>
+	                    <th v-on:click="sort('author')">作者</th>
+	                    <th v-on:click="sort('price')">价格</th>
+	                    <th>操作</th>
+	                </tr>
+	            </thead>
+	            <tbody>
+	                <tr v-for="book in books">
+	                    <td>{{book.id}}</td>
+	                    <td>{{book.name}}</td>
+	                    <td>{{book.author}}</td>
+	                    <td>{{book.price}}</td>
+	                    <td v-if="book.id%2==0"><button class="red" v-on:click="del(book)">删除</button></td>
+	                    <td v-else><button v-on:click="del(book)">删除</button></td>
+	                </tr>
+	            </tbody>
+	        </table>
+	        <div class="addbook">
+	            <h2>添加书籍</h2>
+	            <div class="form-group">
+	                <label>书名</label>
+	                <input type="text" v-model="book.name">
+	            </div>
+	            <div class="form-group">
+	                <label>作者</label>
+	                <input type="text" v-model="book.author">
+	            </div>
+	            <div class="form-group">
+	                <label>价格</label>
+	                <input type="text" v-model="book.price" number>
+	            </div>
+	            <button v-on:click="add">添加</button>
+	            <h3>总价：{{sum}}</h3>
+	        </div>
+	    </div>
+    </template>
+<div id="app2">
+	查询特定图书：<input type="text" v-model="searchQuery">
+	<book-reserve1 :data="books" :filter-key="searchQuery"></book-reserve1>
+</div>
+    <template id="bookreserve1">
+	    <div>
+	        <table>
+	            <thead>
+	                <tr>
+	                    <th @click="sort1('id')">序号</th>
+	                    <th @click="sort1('name')">书名</th>
+	                    <th @click="sort1('author')">作者</th>
+	                    <th @click="sort1('price')">价格</th>
+	                </tr>
+	            </thead>
+	            <tbody>
+	                <tr v-for="book in filteredData">
+	                    <td>{{book.id}}</td>
+	                    <td>{{book.name}}</td>
+	                    <td>{{book.author}}</td>
+	                    <td>{{book.price}}</td>
+	                </tr>
+	            </tbody>
+	        </table>
+	    </div>
+    </template>
+    <script>
+    	  Vue.component('book-reserve',{
+    	  	template:'#bookreserve',
+    	  	data(){
+    	  		return {
+    	  			filterd:'',
+    	  			selectBook:[],
+    	  			books:[
+	                    {"id":1,"name":"红楼梦","author":"zzz","price":32},
+	                    {"id":2,"name":"水浒传","author":"mnm","price":100},
+	                    {"id":3,"name":"三国演义","author":"acd","price":24},
+	                    {"id":4,"name":"西游记","author":"abcv","price":110}
+	                ],
+	                book:[{"id":0,"name":'',"author":'',"price":''}],
+	                val:''
+    	  		}
+    	  	},
+    	  	//props:['book','books'],
+    	  	methods:{
+                add:function(){
+                    this.book.id=this.books.length+1;
+                    //console.log(this.book)
+                    this.books.push(this.book);
+                    this.book=""
+                },
+                del:function(book){
+                    //console.log(book);
+                    this.books.splice(book.id-1,1)
+                },
+                sort:function(val){
+                    //console.log(typeof val);
+                    this.books= _.sortBy(this.books,val) 
+                    //过滤器，将books数组按照传过来的参数排序
+                }
+            },
+            computed:{
+                sum:function(){
+                    var result=0;
+                
+                    for(i=0;i<this.books.length;i++){
+                        result=result+Number(this.books[i].price)
+                    }
+                    return result
+                }
+            }
+    	  })
+          new Vue({
+            el:'#app'
+          })
+          Vue.component('book-reserve1',{
+          	template:'#bookreserve1',
+          	data(){
+          		return {
+          			sortKey:''
+          		}
+          	},
+          	props: {
+			    data: Array,
+			    filterKey: String
+			  },
+          	computed:{
+          		filteredData:function(){
+          			var data=this.data;  //这个就是books数据
+          			var filterKey=this.filterKey&&this.filterKey.toLowerCase();
+          			var sortKey=this.sortKey;
+          			//这个就是文本框输入的内容
+          			if(filterKey){
+          				data=data.filter(function(val){ //过滤器
+			          			if(val.author.indexOf(filterKey)!=-1){
+			          				return val;
+			          			}
+          				})
+          			}
+          			//点击标题的时候排序
+          			if(sortKey){
+          				//data= _.sortBy(this.data,sortKey); //一种排序方式
+          				data = data.slice().sort(function (a, b) { //另外一种排序方式
+          						  console.log(a+b)
+          						  console.log(a[sortKey]+b[sortKey]);
+						          a = a[sortKey]
+						          b = b[sortKey]
+						          return (a === b ? 0 : a > b ? 1 : -1)
+						          
+						        })
+          			}
+          			return data;
+          		}
+          	},
+          	methods:{
+          		sort1:function(key){
+          			this.sortKey=key;
+          		}
+          	}
+          })
+          new Vue({
+          	el:'#app2',
+          	data:{
+				searchQuery:'',
+          		books:[
+	                    {"id":1,"name":"红楼梦","author":"zzz","price":32},
+	                    {"id":2,"name":"水浒传","author":"mnm","price":100},
+	                    {"id":3,"name":"三国演义","author":"acd","price":24},
+	                    {"id":4,"name":"西游记","author":"abcv","price":110}
+	                ]
+          	}
+
+          })
+    </script>
+  </body>
+</html>

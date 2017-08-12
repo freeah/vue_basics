@@ -1,0 +1,70 @@
+*{margin:0;padding:0;}
+body{font-family:'微软雅黑';}
+ul{list-style:none;}
+.dialog{width:500px;border:solid 1px #999;position:relative;}
+.dialog .close{position:absolute;top:20px;right:20px;padding:5px;font-size:20px;}
+.dialog header{height:70px;text-align:center;line-height:70px;background:#999;color:#fff;}
+.dialog .diabody{height:200px;padding:20px;}
+.dialog footer{height:70px;text-align:center;line-height:70px;background:#999;color:#fff;}
+.dialog.active{display:none;}
+
+#tab{width:600px;border:solid 1px #ccc;}
+#tab ul{overflow:hidden;}
+#tab ul li{float:left;padding:5px;border-right:solid 1px #ccc;border-bottom:solid 1px #ccc;width:188px;}
+
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0
+}
+
+
+.slide-fade-enter-active {
+  transition: all .3s ease;
+}
+.slide-fade-leave-active {
+  transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active for <2.1.8 */ {
+  transform: translateX(10px);
+  opacity: 0;
+}
+
+.animatee-enter-active{animation:bounce .5s;}
+.animatee-leave-active{animation:bounce .5s reverse;}
+@keyframes bounce{
+	  0% {
+    transform: scale(0);
+	  }
+	  50% {
+	    transform: scale(1.5);
+	  }
+	  100% {
+	    transform: scale(1);
+	  }
+}
+
+/*example.html*/
+#app{width:700px;margin:50px auto;overflow:hidden;}
+table{border-collapse:collapse;width:100%;}
+table tr{border-bottom:solid 1px #ccc;text-align:center;}
+table tr td{padding:10px;}
+
+.addbook{margin:20px 0 0 0;}
+.addbook .form-group{margin:7px 0;}
+.addbook label{width:100px;display:inline-block;text-align:center;}
+.addbook input{width:550px;padding:5px;}
+.addbook button{cursor:pointer;background:green;color:#fff;line-height:40px;width:100%;border:solid 1px green;}
+table button{width:50px;line-height:40px;background:green;border:none;color:#fff;}
+table .red{background:red;}
+
+
+/*menu*/
+ul li.fl{float:left;margin:0 10px;}
+ul.show{display:none;}
+
+#app2{width:300px;margin:50px auto;}
+.bold{font-weight:bold;}

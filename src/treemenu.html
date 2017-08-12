@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>helloworld</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <script src="lib/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <tree-menu :menus="data"></tree-menu>
+    </div>
+    <!--二级导航的下拉菜单-->
+    <template id="treemenu">
+      <ul>
+        <li v-for="menu in menus" class="fl" @mouseenter="show(menu)" @mouseleave=show(menu)>
+        <a href="">{{menu.name}}</a>
+         <ul v-show="menu.block">
+          <li v-for="two in menu.children">
+              <a href="">{{two.name}}</a>
+              <ul>
+                  <li v-for="three in two.children">
+                    <a href="">{{three.name}}</a>
+                  </li>
+              </ul> 
+          </li>
+        </ul> 
+        </li>
+      </ul>
+    </template>
+    <!--树形视图，组件的递归使用-->
+    <ul id="app2">
+      <tree-menu2 class="item" :module="treeData"></tree-menu2>
+    </ul>
+
+    <template id="treemenu2">
+      <li>
+        <div :class="{bold: isFolder}" @click="toggle" @dblclick="changeType">
+          {{module.name}}
+          <span v-if="isFolder">[{{open ? '-' : '+'}}]</span>
+        </div>
+        <ul v-show="open" v-if="isFolder">
+          <tree-menu2 class="item" v-for="module in module.children" :module="module"></tree-menu2>
+          <li class="add" @click="addChild">+</li>
+        </ul>
+      </li>
+    </template>
+    <script>
+    //带下拉菜单的导航
+      var data=[
+        {
+         "name":'一级标题1',
+         "children":[{"name":'二级标题1'},{"name":'二级标题2'},{"name":'二级标题三'}],
+         "block":false  //这个来表示显示与隐藏
+       },
+        {
+          "name":'一级标题2',
+          "block":false
+        },
+        {
+          "name":'一级标题3',
+          "children":[
+            {"name":'二级标题1'},
+            {"name":'二级标题2',"children":[{"name":'三级标题'}]}
+          ],
+          "block":false
+        }
+      ]
+      Vue.component('tree-menu',{
+        template:'#treemenu',
+        props:{
+          menus:Array
+        },
+        methods:{
+          show:function(menu){
+            menu.block=!menu.block;
+          }
+        }
+      })
+      new Vue({
+        el:'#app',
+        data:{
+          data:data
+        }
+      }) 
+      var data2={
+            name:'myTree',
+            children:[
+              {name:'hello'},
+              {name:'wat'},
+              {
+                name:'childFolder',
+                children:[
+                  {
+                    name:'childFolder',
+                    children:[
+                      {name:'hello'},
+                      {name:'wat'}
+                    ]
+                  },
+                  {name:'hello'},
+                  {name:'wat'},
+                  {
+                    name:'childFolder',
+                    children:[
+                      {name:'hello'},
+                      {name:'wat'}
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+    //树形视图，组件的递归使用
+      Vue.component('tree-menu2',{
+        template:'#treemenu2',
+        props:{
+          module:Object
+        },
+        data:function(){
+          return {
+            open:false
+          }
+        },
+        computed:{
+          isFolder: function () {
+            return this.module.children && this.module.children.length
+          }
+        },
+        methods: {
+          toggle: function () {
+            if (this.isFolder) {
+              this.open = !this.open
+            }
+          },
+          changeType: function () {
+            if (!this.isFolder) {
+              Vue.set(this.module, 'children', [])
+              this.addChild()
+              this.open = true
+            }
+          },
+          addChild: function () {
+            this.module.children.push({
+              name: 'new stuff'
+            })
+          }
+        }
+      })
+      new Vue({
+        el:'#app2',
+        data:{
+          treeData:data2
+        }
+      })
+    </script>
+  </body>
+</html>
